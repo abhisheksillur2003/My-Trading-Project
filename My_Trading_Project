@@ -1,0 +1,42 @@
+# My Trading Project
+This repo contains my Google Colab trading project.
+
+import yfinance as yf
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Download stock data
+data = yf.download("AAPL", start="2020-01-01", end="2025-01-01")
+
+# Add moving averages
+data["MA50"] = data["Close"].rolling(50).mean()
+data["MA200"] = data["Close"].rolling(200).mean()
+
+# Reset index so "Date" is a column
+data = data.reset_index()
+
+# Flatten the MultiIndex columns
+data.columns = ['_'.join(col).strip() for col in data.columns.values]
+
+# Print info and columns to debug the structure
+print(data.info())
+print(data.columns)
+
+
+# Set style
+sns.set(style="darkgrid")
+
+# Create a subset of data for plotting
+plot_data = data[['Date_', 'Close_AAPL', 'MA50_', 'MA200_']]
+
+# Plot using Seaborn
+plt.figure(figsize=(12,6))
+sns.lineplot(x="Date_", y="Close_AAPL", data=plot_data, label="Close")
+sns.lineplot(x="Date_", y="MA50_", data=plot_data, label="MA50")
+sns.lineplot(x="Date_", y="MA200_", data=plot_data, label="MA200")
+plt.title("AAPL Stock Price with 50 and 200 Day Moving Averages")
+plt.xlabel("Date")
+plt.ylabel("Price")
+plt.legend()
+plt.show()
